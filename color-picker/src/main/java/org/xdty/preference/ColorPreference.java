@@ -14,6 +14,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -100,7 +101,9 @@ public class ColorPreference extends Preference implements ColorPickerSwatch
                 colors, mCurrentValue, mColumns,
                 ColorPickerDialog.SIZE_SMALL);
         d.setOnColorSelectedListener(this);
-        d.show(((Activity) getContext()).getFragmentManager(), null);
+        try {
+            d.show(getActivity().getFragmentManager(), null);
+        } catch (Exception e){ }
     }
 
     @Override
@@ -239,5 +242,16 @@ public class ColorPreference extends Preference implements ColorPickerSwatch
             dest.writeIntArray(colors);
             dest.writeInt(columns);
         }
+    }
+
+    public Activity getActivity() {
+        if (getContext() instanceof ContextThemeWrapper){
+            if (((ContextThemeWrapper) getContext()).getBaseContext() instanceof Activity) {
+                return (Activity) ((ContextThemeWrapper) getContext()).getBaseContext();
+            }
+        } else if (getContext() instanceof Activity) {
+            return (Activity) getContext();
+        }
+        return null;
     }
 }

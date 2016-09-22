@@ -10,7 +10,8 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.preference.Preference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceViewHolder;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -66,24 +67,18 @@ public class ColorPreference extends Preference implements ColorPickerSwatch
     }
 
     @Override
-    protected View onCreateView(ViewGroup parent) {
-        View s = super.onCreateView(parent);
+    public void onBindViewHolder(PreferenceViewHolder holder) {
+        super.onBindViewHolder(holder);
         mColorView = new View(getContext());
         int size = (int) dpToPx(32);
         mColorView.setLayoutParams(new ViewGroup.LayoutParams(size, size));
         updateShownColor();
-        ViewGroup w = (ViewGroup) s.findViewById(android.R.id.widget_frame);
+        ViewGroup w = (ViewGroup) holder.itemView.findViewById(android.R.id.widget_frame);
         w.setVisibility(View.VISIBLE);
         w.addView(mColorView);
-        return s;
-    }
-
-    @Override
-    protected void onBindView(View view) {
-        super.onBindView(view);
         if (mMaterial) {
-            TextView textTitle = (TextView) view.findViewById(android.R.id.title);
-            TextView textSummary = (TextView) view.findViewById(android.R.id.summary);
+            TextView textTitle = (TextView) holder.itemView.findViewById(android.R.id.title);
+            TextView textSummary = (TextView) holder.itemView.findViewById(android.R.id.summary);
 
             textTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
             textSummary.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);

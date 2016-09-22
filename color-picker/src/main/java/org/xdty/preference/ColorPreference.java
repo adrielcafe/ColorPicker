@@ -44,17 +44,17 @@ public class ColorPreference extends Preference implements ColorPickerSwatch
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable
                 .ColorPreference, 0, 0);
         try {
-            int id = a.getResourceId(R.styleable.ColorPreference_colors, R.array.default_rainbow);
+            int id = a.getResourceId(R.styleable.ColorPreference_cp_colors, R.array.default_rainbow);
             if (id != 0) {
                 mColors = getContext().getResources().getIntArray(id);
             }
-            id = a.getResourceId(R.styleable.ColorPreference_dialogTitle, 0);
+            id = a.getResourceId(R.styleable.ColorPreference_cp_dialogTitle, 0);
             if (id != 0) {
-                mTitle = a.getResourceId(R.styleable.ColorPreference_dialogTitle,
+                mTitle = a.getResourceId(R.styleable.ColorPreference_cp_dialogTitle,
                         R.string.color_picker_default_title);
             }
-            mColumns = a.getInt(R.styleable.ColorPreference_columns, 5);
-            mMaterial = a.getBoolean(R.styleable.ColorPreference_material, true);
+            mColumns = a.getInt(R.styleable.ColorPreference_cp_columns, 5);
+            mMaterial = a.getBoolean(R.styleable.ColorPreference_cp_material, true);
         } finally {
             a.recycle();
         }

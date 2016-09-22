@@ -10,9 +10,8 @@
         android:key="example_color"
         android:title="Color"
         android:summary="This is a color preference"
-        tools:dialogTitle="@string/default_color"
-        tools:colors="@array/default_rainbow"
-        tools:columns="5"
-        tools:material="true"
+        tools:cp_dialogTitle="@string/default_color"
+        tools:cp_colors="@array/default_rainbow"
+        tools:cp_columns="5"
         android:defaultValue="@color/flamingo"/>
 </PreferenceScreen>

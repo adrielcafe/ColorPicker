@@ -4,12 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
-import android.os.Build;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.ColorInt;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.util.AttributeSet;
@@ -17,6 +21,7 @@ import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.xdty.preference.colorpicker.ColorPickerDialog;
@@ -38,7 +43,7 @@ public class ColorPreference extends Preference implements ColorPickerSwatch
     private int mColumns;
     private boolean mMaterial;
 
-    private View mColorView;
+    private ImageView mColorView;
 
     public ColorPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -70,25 +75,27 @@ public class ColorPreference extends Preference implements ColorPickerSwatch
     @Override
     public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
-        mColorView = new View(getContext());
-        int size = (int) dpToPx(32);
-        mColorView.setLayoutParams(new ViewGroup.LayoutParams(size, size));
-        updateShownColor();
-        ViewGroup w = (ViewGroup) holder.itemView.findViewById(android.R.id.widget_frame);
-        w.setVisibility(View.VISIBLE);
-        w.addView(mColorView);
-        if (mMaterial) {
-            TextView textTitle = (TextView) holder.itemView.findViewById(android.R.id.title);
-            TextView textSummary = (TextView) holder.itemView.findViewById(android.R.id.summary);
+	    if(mColorView == null) {
+		    mColorView = new ImageView(getContext());
+		    int size = (int) dpToPx(32);
+		    mColorView.setLayoutParams(new ViewGroup.LayoutParams(size, size));
+		    updateShownColor();
+		    ViewGroup w = (ViewGroup) holder.itemView.findViewById(android.R.id.widget_frame);
+		    w.setVisibility(View.VISIBLE);
+		    w.addView(mColorView);
+		    if (mMaterial) {
+			    TextView textTitle = (TextView) holder.itemView.findViewById(android.R.id.title);
+			    TextView textSummary = (TextView) holder.itemView.findViewById(android.R.id.summary);
 
-            textTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-            textSummary.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            textTitle.setTextColor(getColor(android.R.attr.textColorPrimary));
-            textSummary.setTextColor(getColor(android.R.attr.textColorSecondary));
+			    textTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+			    textSummary.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+			    textTitle.setTextColor(getColor(android.R.attr.textColorPrimary));
+			    textSummary.setTextColor(getColor(android.R.attr.textColorSecondary));
 
-            View parent = (View) textSummary.getParent().getParent();
-            parent.setPadding((int) dpToPx(16), 0, (int) dpToPx(16), 0);
-        }
+			    View parent = (View) textSummary.getParent().getParent();
+			    parent.setPadding((int) dpToPx(16), 0, (int) dpToPx(16), 0);
+		    }
+	    }
     }
 
     @Override
@@ -171,14 +178,7 @@ public class ColorPreference extends Preference implements ColorPickerSwatch
     }
 
     private void updateShownColor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mColorView.setBackground(new ShapeDrawable(new OvalShape()));
-            ((ShapeDrawable) mColorView.getBackground()).getPaint().setColor(mCurrentValue);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mColorView.setBackground(new ColorCircleDrawable(mCurrentValue));
-        } else {
-            mColorView.setBackgroundDrawable(new ColorCircleDrawable(mCurrentValue));
-        }
+	    mColorView.setImageDrawable(new ColorCircleDrawable(mCurrentValue));
         mColorView.invalidate();
     }
 
@@ -243,6 +243,48 @@ public class ColorPreference extends Preference implements ColorPickerSwatch
             dest.writeInt(columns);
         }
     }
+
+	private class ColorCircleDrawable extends Drawable {
+		private final Paint mPaint;
+		private int mRadius = 0;
+
+		public ColorCircleDrawable(final @ColorInt int color) {
+			mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+			mPaint.setColor(color);
+		}
+
+		public void setColor(@ColorInt int color) {
+			mPaint.setColor(color);
+			invalidateSelf();
+		}
+
+		@Override
+		public void draw(final Canvas canvas) {
+			final Rect bounds = getBounds();
+			canvas.drawCircle(bounds.centerX(), bounds.centerY(), mRadius, mPaint);
+		}
+
+		@Override
+		protected void onBoundsChange(final Rect bounds) {
+			super.onBoundsChange(bounds);
+			mRadius = Math.min(bounds.width(), bounds.height()) / 2;
+		}
+
+		@Override
+		public void setAlpha(final int alpha) {
+			mPaint.setAlpha(alpha);
+		}
+
+		@Override
+		public void setColorFilter(final ColorFilter cf) {
+			mPaint.setColorFilter(cf);
+		}
+
+		@Override
+		public int getOpacity() {
+			return PixelFormat.TRANSLUCENT;
+		}
+	}
 
     public Activity getActivity() {
         if (getContext() instanceof ContextThemeWrapper){
